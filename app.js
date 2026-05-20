@@ -343,19 +343,21 @@ function drawSpring(ctx, startX, startY, endX, endY, numCoils = 6, width = 6) {
   ctx.restore();
 }
 
-// 1. 繪製左側相機內部結構 (對應簡報：光、機、電元件與原理)
+// 1. 繪製左側相機內部結構 (對應簡報：光、機、電元件與原理 - 簡約學術向量圖風格)
 function drawPhysical() {
   const canvas = elements.physicalCanvas;
   const ctx = ctxs.physical;
   const w = canvas.width / (window.devicePixelRatio || 1);
   const h = canvas.height / (window.devicePixelRatio || 1);
   
-  ctx.clearRect(0, 0, w, h);
+  // 乾淨白底背景
+  ctx.fillStyle = '#ffffff';
+  ctx.fillRect(0, 0, w, h);
   
-  // 繪製背景格線
-  ctx.strokeStyle = 'rgba(255, 255, 255, 0.02)';
+  // 繪製背景細格線 (淺灰色，極淡)
+  ctx.strokeStyle = '#f1f5f9';
   ctx.lineWidth = 1;
-  const grid = 30;
+  const grid = 25;
   for (let x = 0; x < w; x += grid) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, h); ctx.stroke(); }
   for (let y = 0; y < h; y += grid) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke(); }
   
@@ -367,19 +369,19 @@ function drawPhysical() {
   ctx.translate(cx + state.shakeOffset.x, cy + state.shakeOffset.y);
   ctx.rotate(state.theta);
   
-  // A. 繪製相機鏡筒外殼 (機 - 鏡筒結構)
-  ctx.fillStyle = '#0a0d1a';
-  ctx.strokeStyle = '#1e293b';
-  ctx.lineWidth = 3.5;
+  // A. 繪製相機鏡筒外殼 (機 - 鏡筒結構：銀灰色金屬感，無霓虹)
+  ctx.fillStyle = '#f8fafc';
+  ctx.strokeStyle = '#94a3b8';
+  ctx.lineWidth = 2.5;
   ctx.beginPath();
-  ctx.roundRect(-120, -70, 240, 140, 15);
+  ctx.roundRect(-120, -70, 240, 140, 8);
   ctx.fill();
   ctx.stroke();
   
-  // 繪製光軸 (Camera Axis - 虛線)
-  ctx.strokeStyle = 'rgba(255, 255, 255, 0.15)';
+  // 繪製相機中心軸 (Camera Axis - 簡約灰色虛線)
+  ctx.strokeStyle = '#cbd5e1';
   ctx.lineWidth = 1;
-  ctx.setLineDash([6, 6]);
+  ctx.setLineDash([4, 4]);
   ctx.beginPath();
   ctx.moveTo(-115, 0);
   ctx.lineTo(115, 0);
@@ -387,37 +389,38 @@ function drawPhysical() {
   ctx.setLineDash([]);
   
   // B. 電學元件 (電) - 陀螺儀感測器、控制晶片 (MCU)
-  // 陀螺儀 (Gyro Sensor)
+  // 陀螺儀 (Gyro Sensor - 扁平晶片風格)
   const gyroX = -95, gyroY = -52, gyroW = 35, gyroH = 22;
-  ctx.fillStyle = '#1e293b';
-  ctx.strokeStyle = '#eab308'; // 黃色代表電學
+  ctx.fillStyle = '#f1f5f9';
+  ctx.strokeStyle = '#64748b'; 
   ctx.lineWidth = 1.5;
   ctx.fillRect(gyroX, gyroY, gyroW, gyroH);
   ctx.strokeRect(gyroX, gyroY, gyroW, gyroH);
   
-  ctx.fillStyle = '#eab308';
-  ctx.font = '8px Outfit, system-ui';
-  ctx.fillText('GYRO', gyroX + 5, gyroY + 14);
-  
-  // 若偵測到抖動，陀螺儀亮黃光
+  // 抖動時背景變為淡黃色 (向量指示，無發光陰影)
   if (Math.abs(state.theta) > 0.001) {
-    ctx.fillStyle = 'rgba(234, 179, 8, 0.25)';
+    ctx.fillStyle = '#fef08a';
     ctx.fillRect(gyroX, gyroY, gyroW, gyroH);
+    ctx.strokeRect(gyroX, gyroY, gyroW, gyroH);
   }
+  
+  ctx.fillStyle = '#334155';
+  ctx.font = 'bold 8px -apple-system, sans-serif';
+  ctx.fillText('GYRO', gyroX + 5, gyroY + 14);
   
   // 控制晶片 (MCU / Control Chip)
   const mcuX = -95, mcuY = 30, mcuW = 35, mcuH = 22;
-  ctx.fillStyle = '#1e293b';
-  ctx.strokeStyle = '#eab308';
+  ctx.fillStyle = '#f1f5f9';
+  ctx.strokeStyle = '#64748b';
   ctx.lineWidth = 1.5;
   ctx.fillRect(mcuX, mcuY, mcuW, mcuH);
   ctx.strokeRect(mcuX, mcuY, mcuW, mcuH);
   
-  ctx.fillStyle = '#eab308';
+  ctx.fillStyle = '#334155';
   ctx.fillText('MCU', mcuX + 7, mcuY + 14);
   
   // 繪製電路板金屬導線與電流訊號 (電 - 微控制器與電源)
-  ctx.strokeStyle = 'rgba(234, 179, 8, 0.2)';
+  ctx.strokeStyle = '#e2e8f0';
   ctx.lineWidth = 1.5;
   // 導線1：陀螺儀 -> MCU
   ctx.beginPath();
@@ -428,25 +431,23 @@ function drawPhysical() {
   // 導線2：MCU -> 音圈馬達 (向上/向下分流)
   ctx.beginPath();
   ctx.moveTo(mcuX + mcuW, mcuY + mcuH / 2);
-  ctx.lineTo(-40, mcuY + mcuH / 2);
-  ctx.lineTo(-40, 36 + state.lensShift);
+  ctx.lineTo(-45, mcuY + mcuH / 2);
+  ctx.lineTo(-45, 36 + state.lensShift);
   ctx.stroke();
   ctx.beginPath();
-  ctx.moveTo(-40, mcuY + mcuH / 2);
-  ctx.lineTo(-40, -36 + state.lensShift);
+  ctx.moveTo(-45, mcuY + mcuH / 2);
+  ctx.lineTo(-45, -36 + state.lensShift);
   ctx.stroke();
   
-  // 若 OIS 開啟且手機在抖動，在導線上繪製流動的黃色電學訊號
+  // 若 OIS 開啟且手機在抖動，在導線上繪製流動的黃色信號點
   if (state.oisMode !== 'off' && Math.abs(state.shakeOffset.y) > 0.5) {
     ctx.save();
-    ctx.strokeStyle = '#eab308';
+    ctx.strokeStyle = '#d97706'; // 深黃橘色電流，無光暈
     ctx.lineWidth = 2;
-    ctx.shadowColor = '#eab308';
-    ctx.shadowBlur = 4;
-    ctx.setLineDash([4, 8]);
+    ctx.setLineDash([4, 6]);
     ctx.lineDashOffset = -performance.now() / 15;
     
-    // 繪製流動信號
+    // 繪製流動電流
     ctx.beginPath();
     ctx.moveTo(gyroX + gyroW / 2, gyroY + gyroH);
     ctx.lineTo(mcuX + mcuW / 2, mcuY);
@@ -454,20 +455,20 @@ function drawPhysical() {
     
     ctx.beginPath();
     ctx.moveTo(mcuX + mcuW, mcuY + mcuH / 2);
-    ctx.lineTo(-40, mcuY + mcuH / 2);
-    ctx.lineTo(-40, 36 + state.lensShift);
-    ctx.moveTo(-40, mcuY + mcuH / 2);
-    ctx.lineTo(-40, -36 + state.lensShift);
+    ctx.lineTo(-45, mcuY + mcuH / 2);
+    ctx.lineTo(-45, 36 + state.lensShift);
+    ctx.moveTo(-45, mcuY + mcuH / 2);
+    ctx.lineTo(-45, -36 + state.lensShift);
     ctx.stroke();
     ctx.restore();
   }
   
   // C. 音圈馬達致動器 (電/機 - 致動器的馬達本體、線圈與磁鐵)
-  // 永磁鐵 (Magnets) - 固定在相機外殼上 (上下各一，分紅白兩極代表 N/S)
+  // 永磁鐵 (Magnets) - 固裝在相機外殼上 (扁平紅白/藍磁極)
   const magYTop = -48, magYBot = 48;
-  ctx.fillStyle = '#ef4444'; // N極 紅
+  ctx.fillStyle = '#ef4444'; // N極
   ctx.fillRect(-52, magYTop - 4, 12, 8);
-  ctx.fillStyle = '#3b82f6'; // S極 藍
+  ctx.fillStyle = '#3b82f6'; // S極
   ctx.fillRect(-40, magYTop - 4, 12, 8);
   
   ctx.fillStyle = '#ef4444';
@@ -475,139 +476,117 @@ function drawPhysical() {
   ctx.fillStyle = '#3b82f6';
   ctx.fillRect(-40, magYBot - 4, 12, 8);
   
-  // 驅動線圈 (Coils) - 包在 OIS 鏡筒兩側，隨鏡片移動 (橘銅色)
+  // 驅動線圈 (Coils) - 包在 OIS 鏡筒兩側，隨鏡片移動 (細緻銅線圈風格)
   const coilYTop = -36 + state.lensShift;
   const coilYBot = 36 + state.lensShift;
-  ctx.strokeStyle = '#d97706';
-  ctx.lineWidth = 3;
+  ctx.strokeStyle = '#b45309'; // 扁平銅色
+  ctx.lineWidth = 2.5;
   ctx.beginPath();
-  // 頂部線圈圈數線條
-  ctx.moveTo(-50, coilYTop); ctx.lineTo(-32, coilYTop);
-  ctx.moveTo(-50, coilYTop - 2); ctx.lineTo(-32, coilYTop - 2);
-  // 底部線圈
-  ctx.moveTo(-50, coilYBot); ctx.lineTo(-32, coilYBot);
-  ctx.moveTo(-50, coilYBot + 2); ctx.lineTo(-32, coilYBot + 2);
+  ctx.moveTo(-49, coilYTop); ctx.lineTo(-31, coilYTop);
+  ctx.moveTo(-49, coilYTop - 2.5); ctx.lineTo(-31, coilYTop - 2.5);
+  ctx.moveTo(-49, coilYBot); ctx.lineTo(-31, coilYBot);
+  ctx.moveTo(-49, coilYBot + 2.5); ctx.lineTo(-31, coilYBot + 2.5);
   ctx.stroke();
   
   // D. 光學元件 (光) - 一般的透鏡組、防手震補償鏡片、感測器平面
-  // 1. 一般固定透鏡組 (Fixed Lenses) - 前後各一片，固定於鏡筒
-  ctx.fillStyle = 'rgba(255, 255, 255, 0.06)';
-  ctx.strokeStyle = 'rgba(255, 255, 255, 0.25)';
+  // 1. 一般固定透鏡組 (Fixed Lenses) - 清晰無光暈的淺藍色玻璃
+  ctx.fillStyle = 'rgba(37, 99, 235, 0.05)';
+  ctx.strokeStyle = 'rgba(37, 99, 235, 0.35)';
   ctx.lineWidth = 1;
-  // 前透鏡組
-  ctx.beginPath(); ctx.ellipse(-65, 0, 4.5, 28, 0, 0, Math.PI*2); ctx.fill(); ctx.stroke();
-  // 後透鏡組
-  ctx.beginPath(); ctx.ellipse(-15, 0, 4.5, 28, 0, 0, Math.PI*2); ctx.fill(); ctx.stroke();
+  // 前透鏡
+  ctx.beginPath(); ctx.ellipse(-65, 0, 4, 28, 0, 0, Math.PI*2); ctx.fill(); ctx.stroke();
+  // 後透鏡
+  ctx.beginPath(); ctx.ellipse(-15, 0, 4, 28, 0, 0, Math.PI*2); ctx.fill(); ctx.stroke();
   
-  // 2. 防手震補償鏡片 (OIS Lens) - 懸浮，可隨 VCM 上下平移
+  // 2. 防手震補償鏡片 (OIS Lens) - 可動，無發光陰影
   const lensX = -40;
   const lensY = state.lensShift;
   
-  // 鏡筒可動框架 (機 - 鏡筒結構)
-  ctx.fillStyle = '#111827';
-  ctx.strokeStyle = '#9d4edd'; // 紫色代表機械結構
+  // 鏡筒可動框架 (機 - 鏡筒結構：簡約金屬灰框)
+  ctx.fillStyle = '#f8fafc';
+  ctx.strokeStyle = '#64748b'; 
   ctx.lineWidth = 1.5;
   ctx.beginPath();
-  ctx.roundRect(lensX - 6, lensY - 26, 12, 52, 3);
+  ctx.roundRect(lensX - 6, lensY - 26, 12, 52, 2);
   ctx.fill();
   ctx.stroke();
   
-  // OIS 玻璃鏡片本身 (光)
-  ctx.fillStyle = 'rgba(0, 240, 255, 0.15)';
-  ctx.strokeStyle = '#00f0ff';
-  ctx.lineWidth = 2;
-  if (state.oisMode === 'lens' && Math.abs(state.lensShift) > 0.5) {
-    ctx.shadowColor = '#00f0ff';
-    ctx.shadowBlur = 8;
-  }
+  // OIS 玻璃鏡片 (光 - 藍色玻璃面)
+  ctx.fillStyle = 'rgba(37, 99, 235, 0.15)';
+  ctx.strokeStyle = '#2563eb';
+  ctx.lineWidth = 1.8;
   ctx.beginPath();
-  ctx.ellipse(lensX, lensY, 5, 20, 0, 0, Math.PI*2);
+  ctx.ellipse(lensX, lensY, 4.5, 20, 0, 0, Math.PI*2);
   ctx.fill();
   ctx.stroke();
-  ctx.shadowBlur = 0;
   
   // E. 機械懸浮結構 (機 - 懸浮與支撐結構 / 彈簧片)
-  // 用波浪線繪製連結鏡框與外筒的懸浮彈簧片 (Spring)
-  // 頂部彈簧片 (彈簧收縮/拉伸)
-  drawSpring(ctx, lensX, magYTop + 4, lensX, lensY - 26, 5, 6);
-  // 底部彈簧片
-  drawSpring(ctx, lensX, magYBot - 4, lensX, lensY + 26, 5, 6);
+  // 用波浪線繪製彈簧片 (Spring)
+  drawSpring(ctx, lensX, magYTop + 4, lensX, lensY - 26, 5, 5);
+  drawSpring(ctx, lensX, magYBot - 4, lensX, lensY + 26, 5, 5);
   
   // F. 感光元件 (光/電 - 感測器平面)
   const sensorX = 70;
   const sensorY = state.sensorShift;
   
-  // 如果是感測器防震 (Sensor-Shift)，感光元件四周也有懸浮彈簧片
+  // 如果是感測器防震 (Sensor-Shift)，感測器也有懸浮彈簧
   if (state.oisMode === 'sensor') {
-    drawSpring(ctx, sensorX, magYTop + 4, sensorX, sensorY - 35, 5, 5);
-    drawSpring(ctx, sensorX, magYBot - 4, sensorX, sensorY + 35, 5, 5);
+    drawSpring(ctx, sensorX, magYTop + 4, sensorX, sensorY - 35, 5, 4);
+    drawSpring(ctx, sensorX, magYBot - 4, sensorX, sensorY + 35, 5, 4);
   }
   
   // 感光元件電路基板
-  ctx.fillStyle = '#064e3b';
-  ctx.fillRect(sensorX - 3.5, sensorY - 35, 7, 70);
+  ctx.fillStyle = '#e2e8f0';
+  ctx.fillRect(sensorX - 3, sensorY - 35, 6, 70);
   
-  // 矽光電感應區
-  ctx.fillStyle = '#1d4ed8';
-  ctx.strokeStyle = '#3b82f6';
-  ctx.lineWidth = 2;
-  if (state.oisMode === 'sensor' && Math.abs(state.sensorShift) > 0.5) {
-    ctx.shadowColor = '#3b82f6';
-    ctx.shadowBlur = 8;
-  }
-  ctx.fillRect(sensorX - 1.5, sensorY - 26, 3, 52);
-  ctx.strokeRect(sensorX - 1.5, sensorY - 26, 3, 52);
-  ctx.shadowBlur = 0;
+  // 矽感應平面 (深綠色/深藍色)
+  ctx.fillStyle = '#1e3a8a';
+  ctx.strokeStyle = '#2563eb';
+  ctx.lineWidth = 1.5;
+  ctx.fillRect(sensorX - 1, sensorY - 26, 2, 52);
+  ctx.strokeRect(sensorX - 1, sensorY - 26, 2, 52);
   
-  // G. 光路折射與對焦模擬 (光 - 射入光線與修正)
+  // G. 光路折射與對焦模擬 (光 - 射入光線與修正，無發光陰影)
   const rayAngle = -state.theta;
   const hitLocalY = state.lensShift + state.focalLength * Math.tan(rayAngle);
   const deviation = hitLocalY - state.sensorShift;
   const isStabilized = Math.abs(deviation) < 3.0;
   
-  // 繪製三道平行入射光束 (簡報原理介紹圖b)
+  // 繪製三道平行入射光束
   const offsets = [-15, 0, 15];
-  ctx.lineWidth = 2;
+  ctx.lineWidth = 1.8;
   
   offsets.forEach(offset => {
     // 1. 光線前進到一般前透鏡 (X = -65)
     const yAtLens1 = offset - state.shakeOffset.y - (-65) * state.theta;
-    
     // 2. 到達可動防震鏡片 (X = -40)
     const yAtOisLens = offset - state.shakeOffset.y - (-40) * state.theta;
-    
     // 3. 到達後透鏡組 (X = -15)
-    // 根據 OIS 鏡片偏移，光線會產生偏折。如果已補償，光點會被折射回中心
     const yAtLens2 = yAtOisLens + (15 / 110) * (hitLocalY - yAtOisLens);
     
-    ctx.strokeStyle = isStabilized ? 'rgba(0, 255, 102, 0.65)' : 'rgba(0, 240, 255, 0.65)';
-    ctx.shadowColor = isStabilized ? '#00ff66' : '#00f0ff';
-    ctx.shadowBlur = isStabilized ? 4 : 1;
+    // 合焦綠色，偏離紅色，純色無光暈
+    ctx.strokeStyle = isStabilized ? 'rgba(22, 163, 74, 0.75)' : 'rgba(220, 38, 38, 0.75)';
     
     ctx.beginPath();
-    ctx.moveTo(-180, offset - state.shakeOffset.y - (-180) * state.theta); // 機身外
-    ctx.lineTo(-65, yAtLens1); // 一般前透鏡
-    ctx.lineTo(lensX, yAtOisLens); // OIS 鏡片
-    ctx.lineTo(-15, yAtLens2); // 一般後透鏡
-    ctx.lineTo(sensorX, hitLocalY); // 感光元件焦點
+    ctx.moveTo(-180, offset - state.shakeOffset.y - (-180) * state.theta); 
+    ctx.lineTo(-65, yAtLens1); 
+    ctx.lineTo(lensX, yAtOisLens); 
+    ctx.lineTo(-15, yAtLens2); 
+    ctx.lineTo(sensorX, hitLocalY); 
     ctx.stroke();
   });
-  ctx.shadowBlur = 0;
   
-  // 繪製焦點 (Focus Spot)
-  ctx.fillStyle = isStabilized ? '#00ff66' : '#ff3366';
-  ctx.shadowColor = isStabilized ? '#00ff66' : '#ff3366';
-  ctx.shadowBlur = 8;
+  // 繪製焦點 (Focus Spot - 實心無光暈)
+  ctx.fillStyle = isStabilized ? '#16a34a' : '#dc2626';
   ctx.beginPath();
-  ctx.arc(sensorX, hitLocalY, 4.5, 0, Math.PI * 2);
+  ctx.arc(sensorX, hitLocalY, 4, 0, Math.PI * 2);
   ctx.fill();
-  ctx.shadowBlur = 0;
   
-  // H. 繪製光機電元件文字標記線 (中文標註，直接對應簡報文字)
-  ctx.fillStyle = 'rgba(255, 255, 255, 0.45)';
-  ctx.font = '8px Noto Sans TC, sans-serif';
-  ctx.strokeStyle = 'rgba(255, 255, 255, 0.15)';
-  ctx.lineWidth = 0.5;
+  // H. 繪製光機電元件文字標記線 (簡約深灰色，不搶焦點)
+  ctx.fillStyle = '#64748b';
+  ctx.font = '8px -apple-system, sans-serif';
+  ctx.strokeStyle = '#e2e8f0';
+  ctx.lineWidth = 0.8;
   
   // 1. 陀螺儀
   ctx.fillText('陀螺儀感測器 (電)', -108, -60);
@@ -617,7 +596,7 @@ function drawPhysical() {
   
   // 3. 彈簧片
   ctx.fillText('懸浮彈簧片 (機)', -25, -60);
-  ctx.beginPath(); ctx.moveTo(-25, -57); ctx.lineTo(lensX, magYTop + 8); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(-25, -57); ctx.lineTo(lensX - 2, magYTop + 8); ctx.stroke();
   
   // 4. 音圈馬達線圈
   ctx.fillText('音圈馬達線圈 (電/機)', 2, -49);
@@ -635,33 +614,33 @@ function drawPhysical() {
   
   ctx.restore(); // 恢復世界空間
   
-  // 畫布背景固定提示線
-  ctx.strokeStyle = 'rgba(255,255,255,0.04)';
-  ctx.lineWidth = 1.5;
+  // 畫布背景固定中央對齊線 (淺灰虛線)
+  ctx.strokeStyle = '#e2e8f0';
+  ctx.lineWidth = 1;
   ctx.setLineDash([4, 4]);
   ctx.beginPath();
-  ctx.moveTo(30, cy);
-  ctx.lineTo(w - 30, cy);
+  ctx.moveTo(20, cy);
+  ctx.lineTo(w - 20, cy);
   ctx.stroke();
   ctx.setLineDash([]);
 }
 
-
-// 2. 繪製右側觀景窗 (最終照片)
+// 2. 繪製右側觀景窗 (最終照片 - 亮色靶紙風格)
 function drawViewfinder() {
   const canvas = elements.viewfinderCanvas;
   const ctx = ctxs.viewfinder;
   const w = canvas.width / (window.devicePixelRatio || 1);
   const h = canvas.height / (window.devicePixelRatio || 1);
   
-  ctx.fillStyle = '#000';
+  // 純白景物背景
+  ctx.fillStyle = '#ffffff';
   ctx.fillRect(0, 0, w, h);
   
   const history = state.viewfinderHistory;
   const steps = history.length;
   if (steps === 0) return;
   
-  // 計算晃動產生的模糊程度 (速度快則層數多、透明度低)
+  // 計算晃動速度以確定運動模糊透明度
   let speed = 0;
   if (steps >= 2) {
     const p1 = history[steps - 1];
@@ -669,7 +648,7 @@ function drawViewfinder() {
     speed = Math.hypot(p1.x - p2.x, p1.y - p2.y);
   }
   
-  // OIS 關閉時套用運動模糊
+  // OIS 關閉時套用運動模糊 (疊加多層淺色殘影)
   const isOisOff = state.oisMode === 'off';
   const drawLayers = isOisOff ? steps : 1;
   
@@ -678,10 +657,10 @@ function drawViewfinder() {
     if (!pos) continue;
     
     ctx.save();
-    // 設定透明度堆疊
-    ctx.globalAlpha = isOisOff ? (1.0 - (i / steps)) * (1 / (1 + speed * 0.15)) : 1.0;
+    // 運動模糊的透明度分佈
+    ctx.globalAlpha = isOisOff ? (1.0 - (i / steps)) * (1 / (1 + speed * 0.12)) : 1.0;
     
-    // 平移坐標
+    // 平移觀景窗景物
     ctx.translate(w / 2 - pos.x, h / 2 - pos.y);
     
     // 繪製觀景窗內容
@@ -690,40 +669,44 @@ function drawViewfinder() {
   }
 }
 
-// 繪製觀景窗內的對照靶紙 (幾何簡約景物)
+// 繪製觀景窗內的對照靶紙 (學術簡約、高清晰的相機測試靶標)
 function drawViewfinderContent(ctx) {
-  // 漸層背景天空
+  // 圓形靶紙背景 (淺象牙白到淺灰漸層)
   const grad = ctx.createRadialGradient(0, 0, 10, 0, 0, 110);
-  grad.addColorStop(0, '#1e293b');
-  grad.addColorStop(1, '#0f172a');
+  grad.addColorStop(0, '#ffffff');
+  grad.addColorStop(1, '#f1f5f9');
   ctx.fillStyle = grad;
+  ctx.strokeStyle = '#cbd5e1';
+  ctx.lineWidth = 1.5;
   ctx.beginPath();
   ctx.arc(0, 0, 100, 0, Math.PI * 2);
   ctx.fill();
+  ctx.stroke();
   
-  // 繪製靶心同心圓
-  ctx.strokeStyle = 'rgba(0, 240, 255, 0.4)';
-  ctx.lineWidth = 2;
+  // 繪製靶標同心圓 (灰度線條，乾淨精確)
+  ctx.strokeStyle = '#cbd5e1';
+  ctx.lineWidth = 1;
   ctx.beginPath(); ctx.arc(0, 0, 25, 0, Math.PI * 2); ctx.stroke();
   ctx.beginPath(); ctx.arc(0, 0, 55, 0, Math.PI * 2); ctx.stroke();
   ctx.beginPath(); ctx.arc(0, 0, 85, 0, Math.PI * 2); ctx.stroke();
   
-  // 中心合焦指示環
+  // 中心合焦指示圈 (合焦綠色，手震偏折紅色)
   const isStabilized = state.oisMode !== 'off' || (Math.abs(state.viewfinderPos.y) < 3.0);
-  ctx.strokeStyle = isStabilized ? '#00ff66' : '#ff3366';
-  ctx.lineWidth = 3;
+  ctx.strokeStyle = isStabilized ? '#16a34a' : '#dc2626';
+  ctx.lineWidth = 2.5;
   ctx.beginPath();
   ctx.arc(0, 0, 8, 0, Math.PI * 2);
   ctx.stroke();
   
-  // 十字準心
-  ctx.strokeStyle = 'rgba(255, 255, 255, 0.2)';
+  // 刻度十字準心
+  ctx.strokeStyle = '#94a3b8';
   ctx.lineWidth = 1;
   ctx.beginPath(); ctx.moveTo(-95, 0); ctx.lineTo(-15, 0); ctx.stroke();
   ctx.beginPath(); ctx.moveTo(15, 0); ctx.lineTo(95, 0); ctx.stroke();
   ctx.beginPath(); ctx.moveTo(0, -95); ctx.lineTo(0, -15); ctx.stroke();
   ctx.beginPath(); ctx.moveTo(0, 15); ctx.lineTo(0, 95); ctx.stroke();
 }
+
 
 // --- 動畫主循環 ---
 function loop(currentTime) {
