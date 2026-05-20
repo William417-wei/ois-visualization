@@ -364,10 +364,11 @@ function drawPhysical() {
   const cx = w / 2;
   const cy = h / 2;
   
-  // 畫布中心在手震位置 (x, y)，並配合傾斜角度旋轉
+  // 畫布中心在手震位置 (x, y)，並配合傾斜角度旋轉與放大
   ctx.save();
   ctx.translate(cx + state.shakeOffset.x, cy + state.shakeOffset.y);
   ctx.rotate(state.theta);
+  ctx.scale(1.22, 1.22); // 放大鏡頭模組以清晰展示內部細節
   
   // A. 繪製相機鏡筒外殼 (機 - 鏡筒結構：銀灰色金屬感，無霓虹)
   ctx.fillStyle = '#f8fafc';
@@ -669,42 +670,96 @@ function drawViewfinder() {
   }
 }
 
-// 繪製觀景窗內的對照靶紙 (學術簡約、高清晰的相機測試靶標)
+// 繪製觀景窗內的景象 (學術簡約、高清晰的相機景物模擬)
 function drawViewfinderContent(ctx) {
-  // 圓形靶紙背景 (淺象牙白到淺灰漸層)
-  const grad = ctx.createRadialGradient(0, 0, 10, 0, 0, 110);
-  grad.addColorStop(0, '#ffffff');
-  grad.addColorStop(1, '#f1f5f9');
+  // 圓形遮罩背景 (淺藍天空到淺灰漸層)
+  const grad = ctx.createLinearGradient(0, -90, 0, 90);
+  grad.addColorStop(0, '#bae6fd'); // 淺天空藍
+  grad.addColorStop(1, '#f8fafc'); // 地平線白色
   ctx.fillStyle = grad;
-  ctx.strokeStyle = '#cbd5e1';
-  ctx.lineWidth = 1.5;
   ctx.beginPath();
   ctx.arc(0, 0, 100, 0, Math.PI * 2);
   ctx.fill();
-  ctx.stroke();
   
-  // 繪製靶標同心圓 (灰度線條，乾淨精確)
-  ctx.strokeStyle = '#cbd5e1';
-  ctx.lineWidth = 1;
-  ctx.beginPath(); ctx.arc(0, 0, 25, 0, Math.PI * 2); ctx.stroke();
-  ctx.beginPath(); ctx.arc(0, 0, 55, 0, Math.PI * 2); ctx.stroke();
-  ctx.beginPath(); ctx.arc(0, 0, 85, 0, Math.PI * 2); ctx.stroke();
+  // 繪製遠方的太陽 (淡黃色)
+  ctx.fillStyle = '#fef08a';
+  ctx.beginPath();
+  ctx.arc(45, -35, 12, 0, Math.PI * 2);
+  ctx.fill();
   
-  // 中心合焦指示圈 (合焦綠色，手震偏折紅色)
+  // 繪製遠山 (後排：淺灰色山脈)
+  ctx.fillStyle = '#cbd5e1';
+  ctx.beginPath();
+  ctx.moveTo(-80, 45);
+  ctx.lineTo(-25, -15);
+  ctx.lineTo(30, 45);
+  ctx.fill();
+  
+  // 繪製遠山 (前排較大：石板灰山脈)
+  ctx.fillStyle = '#94a3b8';
+  ctx.beginPath();
+  ctx.moveTo(-50, 60);
+  ctx.lineTo(20, -25);
+  ctx.lineTo(90, 60);
+  ctx.fill();
+
+  // 繪製山丘 (右側：深石板灰山脈)
+  ctx.fillStyle = '#64748b';
+  ctx.beginPath();
+  ctx.moveTo(-15, 60);
+  ctx.lineTo(5, 10);
+  ctx.lineTo(45, 60);
+  ctx.fill();
+  
+  // 繪製地平線與地面
+  ctx.fillStyle = '#e2e8f0';
+  ctx.beginPath();
+  ctx.arc(0, 0, 100, 0.15 * Math.PI, 0.85 * Math.PI);
+  ctx.fill();
+  
+  // 繪製小針葉樹 (簡約幾何三角形)
+  ctx.fillStyle = '#475569';
+  // 樹 1
+  ctx.beginPath();
+  ctx.moveTo(-60, 45);
+  ctx.lineTo(-54, 25);
+  ctx.lineTo(-48, 45);
+  ctx.fill();
+  // 樹 2
+  ctx.beginPath();
+  ctx.moveTo(-45, 50);
+  ctx.lineTo(-40, 28);
+  ctx.lineTo(-35, 50);
+  ctx.fill();
+  
+  // 中心自動對焦框 (Autofocus Bracket - 模擬真實相機畫面)
   const isStabilized = state.oisMode !== 'off' || (Math.abs(state.viewfinderPos.y) < 3.0);
   ctx.strokeStyle = isStabilized ? '#16a34a' : '#dc2626';
-  ctx.lineWidth = 2.5;
+  ctx.lineWidth = 1.8;
+  const sz = 12;
   ctx.beginPath();
-  ctx.arc(0, 0, 8, 0, Math.PI * 2);
+  // 左上括角
+  ctx.moveTo(-sz, -sz + 4); ctx.lineTo(-sz, -sz); ctx.lineTo(-sz + 4, -sz);
+  // 右上括角
+  ctx.moveTo(sz - 4, -sz); ctx.lineTo(sz, -sz); ctx.lineTo(sz, -sz + 4);
+  // 左下括角
+  ctx.moveTo(-sz, sz - 4); ctx.lineTo(-sz, sz); ctx.lineTo(-sz + 4, sz);
+  // 右下括角
+  ctx.moveTo(sz - 4, sz); ctx.lineTo(sz, sz); ctx.lineTo(sz, sz - 4);
   ctx.stroke();
   
-  // 刻度十字準心
-  ctx.strokeStyle = '#94a3b8';
-  ctx.lineWidth = 1;
-  ctx.beginPath(); ctx.moveTo(-95, 0); ctx.lineTo(-15, 0); ctx.stroke();
-  ctx.beginPath(); ctx.moveTo(15, 0); ctx.lineTo(95, 0); ctx.stroke();
-  ctx.beginPath(); ctx.moveTo(0, -95); ctx.lineTo(0, -15); ctx.stroke();
-  ctx.beginPath(); ctx.moveTo(0, 15); ctx.lineTo(0, 95); ctx.stroke();
+  // 對焦中心小點
+  ctx.fillStyle = isStabilized ? '#16a34a' : '#dc2626';
+  ctx.beginPath();
+  ctx.arc(0, 0, 2, 0, Math.PI * 2);
+  ctx.fill();
+
+  // 鏡頭圓形邊框
+  ctx.strokeStyle = '#cbd5e1';
+  ctx.lineWidth = 2.5;
+  ctx.beginPath();
+  ctx.arc(0, 0, 100, 0, Math.PI * 2);
+  ctx.stroke();
 }
 
 
