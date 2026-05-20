@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="極簡版光學防手震 (OIS) 互動模擬器，手動拖曳手機即可體驗 OIS 運作機制。">
+  <title>光學防手震 (OIS) 互動體驗 | Optical Image Stabilization</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Noto+Sans+TC:wght@300;400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="stars-bg"></div>
+  <div class="grid-bg"></div>
+
+  <main class="app-container simplified">
+    <header class="app-header">
+      <div class="badge">互動體驗版</div>
+      <h1>光學防手震 <span class="highlight">OIS</span> 運作原理</h1>
+      <p class="subtitle">用滑鼠或手指直接拖曳左側手機，體驗防手震效果！</p>
+    </header>
+
+    <!-- 主要雙視窗佈局 -->
+    <div class="dashboard-layout simplified">
+      
+      <!-- 左側：相機內部結構（可拖曳晃動） -->
+      <section class="panel physical-panel">
+        <div class="panel-header">
+          <span class="icon">📱</span>
+          <h2>相機內部結構 (按住滑鼠拖曳手機晃動)</h2>
+        </div>
+        <div class="canvas-container drag-active">
+          <canvas id="physical-canvas"></canvas>
+          <div class="drag-overlay" id="drag-overlay">
+            <div class="drag-icon">↔️</div>
+            <p>按住此處拖曳晃動手機</p>
+          </div>
+          <div class="canvas-legend">
+            <span class="legend-item"><span class="legend-color ray"></span>光線/光軸</span>
+            <span class="legend-item"><span class="legend-color lens"></span>光學 (鏡片/感測器)</span>
+            <span class="legend-item"><span class="legend-color mech"></span>機械 (彈簧片/結構)</span>
+            <span class="legend-item"><span class="legend-color elec"></span>電學 (陀螺儀/MCU/線圈)</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- 右側：觀景窗成像對比 -->
+      <section class="panel viewfinder-panel">
+        <div class="panel-header">
+          <span class="icon">📸</span>
+          <h2>實時觀景窗成像 (最終照片)</h2>
+          <div class="viewfinder-badges">
+            <span class="badge-mode" id="badge-ois-mode">OIS OFF</span>
+          </div>
+        </div>
+        <div class="viewfinder-container">
+          <canvas id="viewfinder-canvas"></canvas>
+          <div class="focus-ring"></div>
+          <div class="viewfinder-overlay">
+            <div class="grid-lines"></div>
+            <div class="rec-dot"></div>
+            <div class="shutter-speed">1/30s 快門</div>
+          </div>
+        </div>
+      </section>
+
+    </div>
+
+    <!-- 底部控制面板 -->
+    <footer class="control-panel glass simplified">
+      <div class="control-grid">
+        
+        <!-- OIS 開關 -->
+        <div class="control-group">
+          <h3>防手震開關</h3>
+          <div class="toggle-container">
+            <button class="btn-toggle active" id="btn-ois-toggle" data-state="off">
+              <span class="toggle-status">OIS 已關閉 (OFF)</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- OIS 補償類型 -->
+        <div class="control-group">
+          <h3>防手震補償類型</h3>
+          <div class="type-buttons">
+            <button class="btn-type active" id="btn-type-lens" data-type="lens">
+              <span>鏡片位移式 (Lens-Shift)</span>
+            </button>
+            <button class="btn-type" id="btn-type-sensor" data-type="sensor">
+              <span>感光元件位移式 (Sensor-Shift)</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- 模擬器控制 -->
+        <div class="control-group">
+          <h3>模擬器控制</h3>
+          <div class="simulator-actions">
+            <button class="btn-action" id="btn-auto-shake">啟動自動晃動</button>
+            <button class="btn-action secondary" id="btn-reset">重設位置</button>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- 原理簡單介紹 -->
+      <div class="info-section">
+        <div class="info-card">
+          <h4>💡 光、機、電系統協同運作</h4>
+          <div class="system-desc">
+            <p><strong>光 (Optical)：</strong>一般透鏡組、<strong>防手震補償鏡片</strong>、感測器平面。</p>
+            <p><strong>機 (Mechanical)：</strong>鏡筒結構、致動器傳動機構、<strong>補償鏡片的懸浮彈簧片</strong>。</p>
+            <p><strong>電 (Electrical)：</strong><strong>陀螺儀感測器</strong>（偵測角位移）、<strong>控制晶片 (MCU)</strong>（計算補償量）、音圈馬達電磁線圈。</p>
+          </div>
+          <p class="explanation-p" id="info-text">
+            <strong>【OIS 關閉】</strong> 拖曳手機晃動時，光線與鏡頭一起偏移。光線偏移導致影像在感光元件上產生殘影。
+          </p>
+        </div>
+      </div>
+    </footer>
+
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>
